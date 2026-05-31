@@ -1,0 +1,308 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>AI Pitch Generator — Pragati Sahayak</title>
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Sans:wght@300;400;500;600&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#060910;--s1:#0b1120;--s2:#0f1a2e;--s3:#162034;
+  --border:rgba(99,179,237,0.12);--blue:#63b3ed;--cyan:#4fd1c5;
+  --green:#68d391;--gold:#f6e05e;--red:#fc8181;--violet:#b794f4;
+  --orange:#f6ad55;--white:#f0f4f8;--muted:#4a5568;
+  --ff:'Syne',sans-serif;--fb:'DM Sans',sans-serif;--fm:'JetBrains Mono',monospace;
+}
+*{margin:0;padding:0;box-sizing:border-box;}
+html{scroll-behavior:smooth;}
+body{background:var(--bg);color:var(--white);font-family:var(--fb);min-height:100vh;}
+
+body::before{
+  content:'';position:fixed;inset:0;
+  background:radial-gradient(ellipse 60% 40% at 10% 20%,rgba(99,179,237,0.05) 0%,transparent 60%),
+             radial-gradient(ellipse 40% 50% at 90% 80%,rgba(79,209,197,0.03) 0%,transparent 60%);
+  pointer-events:none;z-index:0;
+}
+
+/* HEADER */
+.header{
+  position:sticky;top:0;z-index:100;
+  background:rgba(6,9,16,0.95);backdrop-filter:blur(24px);
+  border-bottom:1px solid var(--border);
+  padding:0 32px;height:64px;
+  display:flex;align-items:center;justify-content:space-between;
+}
+.logo{font-family:var(--ff);font-size:16px;font-weight:800;color:var(--blue);display:flex;align-items:center;gap:10px;}
+.logo-pip{width:8px;height:8px;border-radius:50%;background:var(--green);box-shadow:0 0 10px var(--green);animation:blink 2s infinite;}
+@keyframes blink{0%,100%{opacity:1}50%{opacity:0.3}}
+.hbadge{font-family:var(--fm);font-size:9px;color:var(--muted);border:1px solid var(--border);padding:4px 12px;border-radius:100px;letter-spacing:.06em;}
+
+/* LAYOUT */
+.page{position:relative;z-index:1;max-width:1100px;margin:0 auto;padding:40px 24px 80px;}
+
+/* HERO */
+.hero{text-align:center;padding:40px 0 48px;}
+.hero-tag{display:inline-flex;align-items:center;gap:8px;font-family:var(--fm);font-size:10px;color:var(--blue);border:1px solid rgba(99,179,237,0.25);background:rgba(99,179,237,0.05);padding:6px 16px;border-radius:100px;margin-bottom:24px;letter-spacing:.06em;}
+.hero h1{font-family:var(--ff);font-size:clamp(32px,5vw,56px);font-weight:800;line-height:1.05;letter-spacing:-2px;background:linear-gradient(135deg,#fff 20%,var(--blue) 80%);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;margin-bottom:12px;}
+.hero-sub{color:var(--muted);font-size:14px;font-weight:300;max-width:480px;margin:0 auto;line-height:1.6;}
+
+/* MAIN GRID */
+.grid{display:grid;grid-template-columns:1fr 1fr;gap:20px;}
+
+/* FORM PANEL */
+.panel{background:var(--s1);border:1px solid var(--border);border-radius:20px;padding:28px;position:relative;overflow:hidden;}
+.panel::before{content:'';position:absolute;top:0;left:0;right:0;height:2px;background:linear-gradient(90deg,transparent,var(--blue),transparent);opacity:0.4;}
+.panel-title{font-family:var(--ff);font-size:20px;font-weight:700;letter-spacing:-.5px;margin-bottom:4px;display:flex;align-items:center;gap:8px;}
+.panel-sub{font-family:var(--fm);font-size:10px;color:var(--muted);letter-spacing:.06em;margin-bottom:24px;}
+
+/* FORM */
+.field{margin-bottom:16px;}
+.label{font-family:var(--fm);font-size:9px;font-weight:600;letter-spacing:.12em;text-transform:uppercase;color:var(--blue);margin-bottom:8px;display:block;}
+.input,.select,.textarea{
+  width:100%;background:rgba(255,255,255,0.04);
+  border:1px solid rgba(255,255,255,0.08);border-radius:10px;
+  padding:11px 14px;color:var(--white);font-family:var(--fb);font-size:14px;
+  outline:none;transition:all .2s;
+}
+.input::placeholder,.textarea::placeholder{color:var(--muted);}
+.input:focus,.select:focus,.textarea:focus{border-color:rgba(99,179,237,0.4);background:rgba(99,179,237,0.04);}
+.select{cursor:pointer;appearance:none;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3E%3Cpath fill='%234a5568' d='M6 8L1 3h10z'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:right 14px center;}
+.select option{background:#0b1120;color:var(--white);}
+.textarea{resize:vertical;min-height:80px;line-height:1.5;}
+
+/* CHIPS */
+.chip-group{display:flex;flex-wrap:wrap;gap:6px;margin-top:4px;}
+.chip{font-family:var(--fm);font-size:9px;font-weight:600;letter-spacing:.06em;padding:6px 12px;border-radius:100px;cursor:pointer;border:1px solid rgba(255,255,255,0.08);background:rgba(255,255,255,0.03);color:var(--muted);transition:all .2s;user-select:none;}
+.chip:hover{color:var(--white);border-color:rgba(255,255,255,0.2);}
+.chip.selected{background:rgba(99,179,237,0.12);border-color:rgba(99,179,237,0.4);color:var(--blue);}
+
+/* GENERATE BTN */
+.gen-btn{
+  width:100%;padding:16px;border-radius:12px;border:none;cursor:pointer;
+  background:linear-gradient(135deg,var(--blue),var(--cyan));
+  color:#000;font-family:var(--ff);font-weight:700;font-size:16px;letter-spacing:-.3px;
+  transition:all .3s;display:flex;align-items:center;justify-content:center;gap:10px;
+  margin-top:8px;
+}
+.gen-btn:hover{transform:translateY(-2px);box-shadow:0 12px 40px rgba(99,179,237,0.3);}
+.gen-btn:disabled{opacity:.5;cursor:not-allowed;transform:none;box-shadow:none;}
+.gen-btn .spin{animation:spin .8s linear infinite;}
+@keyframes spin{from{transform:rotate(0deg)}to{transform:rotate(360deg)}}
+
+/* OUTPUT PANEL */
+.out-panel{background:var(--s1);border:1px solid var(--border);border-radius:20px;overflow:hidden;display:flex;flex-direction:column;}
+.out-header{padding:20px 24px 16px;border-bottom:1px solid rgba(255,255,255,0.05);display:flex;align-items:center;justify-content:space-between;flex-shrink:0;}
+.out-title{font-family:var(--ff);font-size:18px;font-weight:700;display:flex;align-items:center;gap:8px;}
+.out-actions{display:flex;gap:8px;}
+
+/* EMPTY STATE */
+.empty-state{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:60px 24px;text-align:center;}
+.empty-icon{font-size:48px;margin-bottom:16px;opacity:0.4;}
+.empty-title{font-family:var(--ff);font-size:20px;font-weight:600;color:var(--muted);margin-bottom:8px;}
+.empty-desc{font-size:13px;color:var(--muted);line-height:1.6;max-width:280px;}
+
+/* LOADING */
+.loading-state{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:60px 24px;gap:16px;}
+.loader-ring{width:48px;height:48px;border:3px solid rgba(99,179,237,0.15);border-top-color:var(--blue);border-radius:50%;animation:spin .8s linear infinite;}
+.loading-text{font-family:var(--fm);font-size:11px;color:var(--muted);letter-spacing:.08em;}
+.loading-dots::after{content:'...';animation:dots 1.5s infinite;}
+@keyframes dots{0%{content:'.'}33%{content:'..'}66%{content:'...'}}
+
+/* SCRIPT OUTPUT */
+.script-output{flex:1;overflow-y:auto;padding:24px;}
+.script-output::-webkit-scrollbar{width:3px;}
+.script-output::-webkit-scrollbar-thumb{background:var(--border);border-radius:10px;}
+
+.script-section{margin-bottom:24px;}
+.ss-label{font-family:var(--fm);font-size:9px;font-weight:600;letter-spacing:.12em;text-transform:uppercase;color:var(--blue);margin-bottom:10px;display:flex;align-items:center;gap:8px;}
+.ss-label::after{content:'';flex:1;height:1px;background:rgba(255,255,255,0.05);}
+
+.msg-box{background:#040709;border:1px solid rgba(255,255,255,0.06);border-radius:12px;padding:18px;margin-bottom:10px;position:relative;}
+.msg-text{font-size:14px;line-height:1.75;color:#d0dcea;white-space:pre-wrap;word-break:break-word;}
+
+.comment-box{background:rgba(99,179,237,0.04);border:1px solid rgba(99,179,237,0.15);border-left:3px solid var(--blue);border-radius:0 10px 10px 0;padding:12px 16px;margin-bottom:10px;}
+.comment-label{font-family:var(--fm);font-size:9px;letter-spacing:.1em;color:var(--blue);text-transform:uppercase;margin-bottom:6px;font-weight:600;}
+.comment-text{font-size:13px;color:#a0aec0;line-height:1.65;}
+
+.tip-box{background:rgba(246,224,94,0.04);border:1px solid rgba(246,224,94,0.15);border-radius:10px;padding:14px 16px;margin-bottom:10px;}
+.tip-label{font-family:var(--fm);font-size:9px;letter-spacing:.1em;color:var(--gold);text-transform:uppercase;margin-bottom:8px;font-weight:600;}
+.tip-item{font-size:13px;color:#a0aec0;margin-bottom:5px;display:flex;gap:8px;}
+.tip-item::before{content:'→';color:var(--gold);flex-shrink:0;font-family:var(--fm);font-size:10px;margin-top:1px;}
+
+/* COPY BTN small */
+.copy-sm{
+  font-family:var(--fm);font-size:9px;font-weight:600;letter-spacing:.08em;
+  padding:5px 12px;border-radius:8px;border:1px solid rgba(99,179,237,0.3);
+  background:rgba(99,179,237,0.07);color:var(--blue);cursor:pointer;
+  transition:all .2s;display:inline-flex;align-items:center;gap:5px;
+  margin-top:10px;
+}
+.copy-sm:hover{background:rgba(99,179,237,0.15);}
+.copy-sm.done{background:rgba(104,211,145,0.1);border-color:var(--green);color:var(--green);}
+
+.copy-all{
+  font-family:var(--fm);font-size:10px;font-weight:600;letter-spacing:.08em;
+  padding:8px 16px;border-radius:10px;border:1px solid rgba(99,179,237,0.3);
+  background:rgba(99,179,237,0.08);color:var(--blue);cursor:pointer;
+  transition:all .2s;display:flex;align-items:center;gap:6px;
+}
+.copy-all:hover{background:rgba(99,179,237,0.16);}
+.copy-all.done{background:rgba(104,211,145,0.1);border-color:var(--green);color:var(--green);}
+
+.wa-share{
+  font-family:var(--fm);font-size:10px;font-weight:600;letter-spacing:.08em;
+  padding:8px 16px;border-radius:10px;border:1px solid rgba(37,211,102,0.3);
+  background:rgba(37,211,102,0.07);color:#25D366;cursor:pointer;
+  transition:all .2s;display:flex;align-items:center;gap:6px;text-decoration:none;
+}
+.wa-share:hover{background:rgba(37,211,102,0.15);}
+
+/* CLIENT INFO BADGE */
+.client-badge{
+  background:rgba(99,179,237,0.06);border:1px solid rgba(99,179,237,0.15);
+  border-radius:10px;padding:12px 16px;margin-bottom:20px;
+  display:flex;align-items:center;gap:10px;
+}
+.cb-icon{font-size:20px;}
+.cb-name{font-family:var(--ff);font-size:16px;font-weight:700;}
+.cb-details{font-family:var(--fm);font-size:10px;color:var(--muted);margin-top:2px;}
+
+/* TOAST */
+.toast{position:fixed;bottom:28px;left:50%;transform:translateX(-50%) translateY(60px);background:var(--s2);border:1px solid var(--green);color:var(--green);font-family:var(--fm);font-size:11px;padding:10px 20px;border-radius:100px;z-index:9999;transition:transform .3s;box-shadow:0 0 30px rgba(104,211,145,0.2);}
+.toast.show{transform:translateX(-50%) translateY(0);}
+
+/* DIVIDER */
+.divider{height:1px;background:rgba(255,255,255,0.05);margin:8px 0 16px;}
+
+@media(max-width:768px){
+  .grid{grid-template-columns:1fr;}
+  .header{padding:0 16px;}
+  .page{padding:24px 16px 60px;}
+}
+</style>
+</head>
+<body>
+
+<header class="header">
+  <div class="logo">
+    <div class="logo-pip"></div>
+    Pragati Sahayak
+  </div>
+  <span class="hbadge">AI PITCH GENERATOR</span>
+</header>
+
+<div class="page">
+
+  <!-- HERO -->
+  <div class="hero">
+    <div class="hero-tag">⚡ Powered by Claude AI</div>
+    <h1>Client Details Do,<br>Instant Pitch Lo</h1>
+    <p class="hero-sub">Business ki details bharo — AI turant usi ke liye customized WhatsApp, Instagram ya LinkedIn pitch bana dega.</p>
+  </div>
+
+  <!-- GRID -->
+  <div class="grid">
+
+    <!-- LEFT: FORM -->
+    <div class="panel">
+      <div class="panel-title">📋 Client Details</div>
+      <div class="panel-sub">FILL KARO → AI GENERATE KAREGA PERFECT PITCH</div>
+
+      <!-- Business Name -->
+      <div class="field">
+        <label class="label">Business Ka Naam *</label>
+        <input class="input" id="bizName" placeholder="e.g. Sharma Hair Salon, Gupta Furniture" />
+      </div>
+
+      <!-- City -->
+      <div class="field">
+        <label class="label">City / Area</label>
+        <input class="input" id="bizCity" placeholder="e.g. Lucknow, Agra, Delhi" />
+      </div>
+
+      <!-- Business Type -->
+      <div class="field">
+        <label class="label">Business Type *</label>
+        <select class="select" id="bizType">
+          <option value="">-- Select karo --</option>
+          <option value="salon">💇 Salon / Beauty Parlour</option>
+          <option value="restaurant">🍽️ Restaurant / Dhaba / Cafe</option>
+          <option value="gym">🏋️ Gym / Fitness Centre</option>
+          <option value="clinic">🏥 Clinic / Doctor</option>
+          <option value="shop">🛍️ Clothes / Fashion Shop</option>
+          <option value="jewellery">💍 Jewellery Shop</option>
+          <option value="furniture">🪑 Furniture / Home Decor</option>
+          <option value="electronics">📱 Electronics / Mobile Shop</option>
+          <option value="photographer">📸 Photographer / Studio</option>
+          <option value="coaching">📚 Coaching / Tuition Centre</option>
+          <option value="hotel">🏨 Hotel / Guest House</option>
+          <option value="ca">💼 CA / Lawyer / Professional</option>
+          <option value="manufacturer">🏭 Manufacturer / Factory</option>
+          <option value="ecommerce">🛒 Online Seller (Instagram/DM)</option>
+          <option value="other">🔧 Other</option>
+        </select>
+      </div>
+
+      <!-- Platform -->
+      <div class="field">
+        <label class="label">Kahan Se Mila Yeh Client? *</label>
+        <div class="chip-group" id="sourceChips">
+          <div class="chip" data-val="google_maps" onclick="selectChip(this,'source')">🗺️ Google Maps</div>
+          <div class="chip" data-val="instagram" onclick="selectChip(this,'source')">📸 Instagram</div>
+          <div class="chip" data-val="justdial" onclick="selectChip(this,'source')">📋 JustDial</div>
+          <div class="chip" data-val="facebook" onclick="selectChip(this,'source')">👥 Facebook</div>
+          <div class="chip" data-val="walkin" onclick="selectChip(this,'source')">🚶 Walk-in / Physical</div>
+          <div class="chip" data-val="whatsapp_group" onclick="selectChip(this,'source')">💬 WA Group</div>
+          <div class="chip" data-val="referral" onclick="selectChip(this,'source')">🤝 Referral</div>
+        </div>
+      </div>
+
+      <!-- Platform to send -->
+      <div class="field">
+        <label class="label">Pitch Kahan Bhejna Hai? *</label>
+        <div class="chip-group" id="platformChips">
+          <div class="chip" data-val="whatsapp" onclick="selectChip(this,'platform')">💬 WhatsApp</div>
+          <div class="chip" data-val="instagram_dm" onclick="selectChip(this,'platform')">📸 Instagram DM</div>
+          <div class="chip" data-val="linkedin" onclick="selectChip(this,'platform')">💼 LinkedIn</div>
+          <div class="chip" data-val="email" onclick="selectChip(this,'platform')">📧 Email</div>
+          <div class="chip" data-val="sms" onclick="selectChip(this,'platform')">📱 SMS</div>
+        </div>
+      </div>
+
+      <!-- Package -->
+      <div class="field">
+        <label class="label">Konsa Package Suggest Karna Hai?</label>
+        <div class="chip-group" id="pkgChips">
+          <div class="chip selected" data-val="A" onclick="selectChip(this,'pkg')">Option A — ₹12,999</div>
+          <div class="chip" data-val="B" onclick="selectChip(this,'pkg')">Option B — ₹16,999</div>
+          <div class="chip" data-val="C" onclick="selectChip(this,'pkg')">Option C — ₹27,999</div>
+          <div class="chip" data-val="auto" onclick="selectChip(this,'pkg')">🤖 AI Decide Kare</div>
+        </div>
+      </div>
+
+      <!-- Website status -->
+      <div class="field">
+        <label class="label">Website Hai Is Business Ki?</label>
+        <div class="chip-group" id="webChips">
+          <div class="chip selected" data-val="no_website" onclick="selectChip(this,'web')">❌ Nahi Hai</div>
+          <div class="chip" data-val="bad_website" onclick="selectChip(this,'web')">😐 Hai But Kharab</div>
+          <div class="chip" data-val="has_website" onclick="selectChip(this,'web')">✅ Hai (Upgrade pitch)</div>
+        </div>
+      </div>
+
+      <!-- Extra info -->
+      <div class="field">
+        <label class="label">Koi Extra Detail (Optional)</label>
+        <textarea class="textarea" id="extraInfo" placeholder="e.g. Unki Instagram pe 5000 followers hain, DM se orders lete hain. Ya: Maine aaj unse milke number liya. Ya: Unka Google rating 4.2 hai..."></textarea>
+      </div>
+
+      <!-- Tone -->
+      <div class="field">
+        <label class="label">Message Ka Tone</label>
+        <div class="chip-group" id="toneChips">
+          <div class="chip selected" data-val="hinglish_friendly" onclick="selectChip(this,'tone')">😊 Hinglish (Friendly)</div>
+          <div class="chip" data-val="hindi_formal" onclick="selectChip(this,'tone')">🙏 Hindi (Formal)</div>
+          <div class="chip" data-val="english_professional" onclick="selectChip(this,'tone')">💼 English (Pro)</div>
+          <div class="chip" data-val="casual_gen_z" onclick="selectChip(this,'tone')">🔥 Casual / Gen Z</div>
+        </div>
+  </div>
