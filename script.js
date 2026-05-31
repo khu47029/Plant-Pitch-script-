@@ -122,3 +122,42 @@ function shareWhatsApp(){
   window.open(`https://wa.me/?text=${text}`);
 
 }
+async function generatePitch() {
+
+const data = {
+name: document.getElementById("bizName").value,
+city: document.getElementById("bizCity").value,
+type: document.getElementById("bizType").value,
+platform: "WhatsApp",
+source: "Instagram",
+package: "Option B",
+website: "No Website",
+extra: document.getElementById("extraInfo").value,
+tone: "Friendly"
+};
+
+const prompt = buildPrompt(data);
+
+document.getElementById("output").innerHTML =
+"⚡ AI is generating...";
+
+try {
+
+const result = await generateWithOpenAI(prompt);
+
+document.getElementById("output").innerHTML =
+`
+<pre>${result}</pre>
+`;
+
+}
+catch(err){
+
+document.getElementById("output").innerHTML =
+"❌ Error generating pitch";
+
+console.log(err);
+
+}
+
+}
