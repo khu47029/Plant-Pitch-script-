@@ -161,3 +161,37 @@ console.log(err);
 }
 
 }
+import {
+collection,
+getDocs
+} from
+"https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+
+const querySnapshot =
+await getDocs(collection(db,"leads"));
+
+querySnapshot.forEach((doc)=>{
+
+console.log(doc.data());
+
+});
+async function exportPDF(){
+
+const { jsPDF } = window.jspdf;
+
+const doc = new jsPDF();
+
+doc.text("AI Pitch",20,20);
+
+doc.save("pitch.pdf");
+
+}
+const toggle =
+document.getElementById("themeToggle");
+
+toggle.onclick = ()=>{
+
+document.body.classList.toggle("light");
+
+};
+
