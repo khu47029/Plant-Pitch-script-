@@ -242,4 +242,64 @@ data:[12,19,5]
 }]
 }
 });
+let selected = {
+  source: "",
+  platform: "",
+  pkg: "A",
+  web: "no_website",
+  tone: "hinglish_friendly"
+};
 
+function selectChip(el, type) {
+  document.querySelectorAll(`#${type}Chips .chip`).forEach(chip=>{
+    chip.classList.remove("selected");
+  });
+
+  el.classList.add("selected");
+  selected[type] = el.dataset.val;
+}
+
+function generatePitch() {
+
+  const bizName = document.getElementById("bizName").value;
+  const city = document.getElementById("bizCity").value;
+  const type = document.getElementById("bizType").value;
+  const extra = document.getElementById("extraInfo").value;
+
+  if(!bizName || !type){
+    alert("Business name aur type bharna zaruri hai");
+    return;
+  }
+
+  const output = `
+🔥 Hello ${bizName} Team,
+
+Maine aapka business ${selected.source} par dekha aur genuinely laga ki aapke brand me kaafi growth potential hai.
+
+Aaj ke time par customers online first impression se trust banate hain — aur wahi hum improve karte hain.
+
+✅ Premium Website  
+✅ Lead Generation  
+✅ WhatsApp Automation  
+✅ Instagram Branding  
+✅ Google Presence Upgrade  
+
+${city ? `📍 City: ${city}` : ""}
+
+${extra ? `📝 Extra Note: ${extra}` : ""}
+
+Agar aap interested ho toh main ek FREE demo bhi dikha sakta hoon.
+
+— Pragati Sahayak
+`;
+
+  document.getElementById("outputText").innerText = output;
+}
+
+function copyPitch(){
+  const text = document.getElementById("outputText").innerText;
+
+  navigator.clipboard.writeText(text);
+
+  alert("Pitch copied!");
+}
