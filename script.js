@@ -194,4 +194,52 @@ toggle.onclick = ()=>{
 document.body.classList.toggle("light");
 
 };
+const recognition =
+new webkitSpeechRecognition();
+
+recognition.lang = "en-IN";
+
+recognition.start();
+
+recognition.onresult = (e)=>{
+
+const text =
+e.results[0][0].transcript;
+
+console.log(text);
+
+};
+function sendWhatsApp(msg){
+
+window.open(
+`https://wa.me/?text=${encodeURIComponent(msg)}`
+);
+
+}
+function scoreLead(data){
+
+let score = 0;
+
+if(data.followers > 5000)
+score += 30;
+
+if(data.hasWebsite)
+score += 20;
+
+if(data.rating > 4)
+score += 40;
+
+return score;
+
+}
+new Chart(ctx,{
+type:"bar",
+data:{
+labels:["Mon","Tue","Wed"],
+datasets:[{
+label:"Leads",
+data:[12,19,5]
+}]
+}
+});
 
